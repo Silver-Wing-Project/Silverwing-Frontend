@@ -50,7 +50,11 @@ lerna-debug.log*
 
 # Git and GitHub
 .git
+.github
 .github/pr_workflows/
 .github/CODEOWNERS
 .github/pull_request_template.md
 .github/PR_DESCRIPTION.md
+
+# Shell scripts
+*.sh
