@@ -166,3 +166,51 @@ a.secondary {
     filter: invert();
   }
 }
+
+.tableContainer {
+  margin-top: 20px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.error {
+  color: #dc2626;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #fee2e2;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.inputTicker{
+  font-style: italic;
+}
+
+.boldLabel {
+  font-weight: bold;
+  margin-right: 5px;
+}
