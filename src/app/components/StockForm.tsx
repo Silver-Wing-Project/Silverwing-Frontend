@@ -5,18 +5,7 @@ import { StockPrice } from '@/api/types/StockPrice';
 import { FinanceClient } from "@/api/clients/finance.client";
 import { isSuccessResponse } from "@/types/clientResponse.type";
 import styles from "../../app/page.module.css";
-
-// interface StockData {
-//   _id: string;
-//   ticker: string;
-//   date: string;
-//   open: number;
-//   close: number;
-//   high: number;
-//   low: number;
-//   volume: number;
-//   __v: number;
-// }
+import { ApiError } from "@/api/config/api-error";
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
@@ -39,22 +28,35 @@ export default function StockForm() {
   const handleClick = async () => {
     if (!ticker || !startDate || !endDate) {
       setError("Please fill in all fields");
+      setStockData([]);
       return;
     }
     
     setIsLoading(true);
     setError(null);
+    setStockData([]);
     try {
       const financeClient = new FinanceClient();
       const response = await financeClient.fetchStockPrices(ticker, startDate, endDate);
       if (isSuccessResponse(response)) {
           setStockData(response.data);
       } else {
-        setError(response.message || "Failed to fetch stock prices");
+        if (response.statusCode === 404) {
+          setError(`No stock prices found for ${ticker}`);
+        } else {
+          setError(response.message || "Failed to fetch stock prices");
+        }
       }
     } catch (error) {
-      console.error('Error fetching stock data:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch stock data');
+      console.log(error.name);
+      console.log(error.message);
+      if (error.statusCode === 404) {
+        setError(`No stock prices found for ${ticker}`);
+      } else {
+        console.error('Error fetching stock data:', error);
+        console.error('Error status code:', error.statusCode);
+        setError(error instanceof Error ? error.message : 'Failed to fetch stock data');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +112,7 @@ export default function StockForm() {
         </div>
       )}
 
-      {stockData.length > 0 && (
+      {!error && stockData.length > 0 && (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
