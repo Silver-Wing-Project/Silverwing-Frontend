@@ -1,25 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { StockPrice } from '@/api/types/StockPrice';
+import { FinanceClient } from "@/api/clients/finance.client";
+import { isSuccessResponse } from "@/types/clientResponse.type";
 import styles from "../../app/page.module.css";
 
-interface StockData {
-  _id: string;
-  ticker: string;
-  date: string;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
-  volume: number;
-  __v: number;
-}
+// interface StockData {
+//   _id: string;
+//   ticker: string;
+//   date: string;
+//   open: number;
+//   close: number;
+//   high: number;
+//   low: number;
+//   volume: number;
+//   __v: number;
+// }
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [stockData, setStockData] = useState<StockPrice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
@@ -42,25 +45,13 @@ export default function StockForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `http://localhost:3001/finance/fetch-stock-prices/${ticker}?startDate=${startDate}&endDate=${endDate}`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          mode: 'cors',
-          credentials: 'include'
-        }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      const financeClient = new FinanceClient();
+      const response = await financeClient.fetchStockPrices(ticker, startDate, endDate);
+      if (isSuccessResponse(response)) {
+          setStockData(response.data);
+      } else {
+        setError(response.message || "Failed to fetch stock prices");
       }
-      
-      const data = await response.json();
-      setStockData(data);
     } catch (error) {
       console.error('Error fetching stock data:', error);
       setError(error instanceof Error ? error.message : 'Failed to fetch stock data');
@@ -135,7 +126,7 @@ export default function StockForm() {
             <tbody>
               {stockData.map((stock) => (
                 <tr key={stock._id}>
-                  <td>{stock.date.split('T')[0]}</td>
+                  <td>{String(stock.date)}</td>
                   <td>{stock.open.toFixed(2)}</td>
                   <td>{stock.close.toFixed(2)}</td>
                   <td>{stock.high.toFixed(2)}</td>
