@@ -41,22 +41,15 @@ export default function StockForm() {
       if (isSuccessResponse(response)) {
           setStockData(response.data);
       } else {
-        if (response.statusCode === 404) {
-          setError(`No stock prices found for ${ticker}`);
-        } else {
-          setError(response.message || "Failed to fetch stock prices");
-        }
+        // Remove technical prefix if present
+        let msg = response.message || "Failed to fetch stock price";
+        msg = msg.replace(/^(\(pythonService\))?\s*Python script error:\s*/i, "");
+        setError(msg);
       }
     } catch (error) {
       console.log(error.name);
+      console.log(error.statusCode);
       console.log(error.message);
-      if (error.statusCode === 404) {
-        setError(`No stock prices found for ${ticker}`);
-      } else {
-        console.error('Error fetching stock data:', error);
-        console.error('Error status code:', error.statusCode);
-        setError(error instanceof Error ? error.message : 'Failed to fetch stock data');
-      }
     } finally {
       setIsLoading(false);
     }
