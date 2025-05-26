@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axiosInstance from '@/api/config/axios-config';
-import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { ClientResponse, ErrorResponse } from '@/types/clientResponse.type';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { ClientResponse } from '@/types/clientResponse.type';
 import { ApiError } from '@/api/config/api-error';
 
 export class BaseClient {
@@ -50,15 +51,18 @@ export class BaseClient {
       }
     } catch (error) {
       console.error("An error occurred", error);
-      if (error instanceof AxiosError && error.response) {
-        const errorData: ErrorResponse = error.response.data;
-        throw new ApiError(
-          errorData.statusCode || error.response.status,
-          errorData.message || error.message,
-          errorData.error || "API Error"
-        );
-      } else {
-        throw new Error("An unexpected error occurred");
+      if (error instanceof ApiError) {
+        return {
+          statusCode: error.statusCode,
+          message: error.message,
+          error: error.error,
+        };
+      }
+
+      return {
+        statusCode: 0,
+        message: error instanceof Error ? error.message : "Unknown error",
+        error: "Unknown error",
       }
     }
   }
