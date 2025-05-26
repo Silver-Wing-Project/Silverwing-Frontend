@@ -1,80 +1,66 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { StockPrice } from '@/api/types/StockPrice';
+import { FinanceClient } from "@/api/clients/finance.client";
+import { isSuccessResponse } from "@/types/clientResponse.type";
 import styles from "../../app/page.module.css";
-
-interface StockData {
-  _id: string;
-  ticker: string;
-  date: string;
-  open: number;
-  close: number;
-  high: number;
-  low: number;
-  volume: number;
-  __v: number;
-}
+import { ApiError } from "@/api/config/api-error";
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [stockData, setStockData] = useState<StockPrice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Initialize dates after component mounts
   useEffect(() => {
-    const today = new Date();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(today.getDate() - 30);
+    setIsClient(true);
 
-    setStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
-    setEndDate(today.toISOString().split('T')[0]);
+    // Only set dates on client-side
+    const formatDate = (date: Date) => date.toISOString().split('T')[0];
+    setStartDate(formatDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
+    setEndDate(formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000)));
   }, []);
 
   const handleClick = async () => {
     if (!ticker || !startDate || !endDate) {
       setError("Please fill in all fields");
+      setStockData([]);
       return;
     }
     
     setIsLoading(true);
     setError(null);
+    setStockData([]);
     try {
-      const response = await fetch(
-        `http://localhost:3001/finance/fetch-stock-prices?ticker=${ticker}&startDate=${startDate}&endDate=${endDate}`,
-        {
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          mode: 'cors',
-          credentials: 'include'
-        }
-      );
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      const financeClient = new FinanceClient();
+      const response = await financeClient.fetchStockPrices(ticker, startDate, endDate);
+      if (isSuccessResponse(response)) {
+          setStockData(response.data);
+      } else {
+        // Remove technical prefix if present
+        let msg = response.message || "Failed to fetch stock price";
+        msg = msg.replace(/^(\(pythonService\))?\s*Python script error:\s*/i, "");
+        setError(msg);
       }
-      
-      const data = await response.json();
-      setStockData(data);
     } catch (error) {
-      console.error('Error fetching stock data:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch stock data');
+      console.log(error.name);
+      console.log(error.statusCode);
+      console.log(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  if (!isClient) return null;
+
   return (
     <div className={styles.inputContainer}>
       <div className={styles.inputRow}>
-        <label className={`
-          ${styles.boldLabel}
-          `}>Stock Ticker: </label>
+        <label className={`${styles.boldLabel}`}>Stock Ticker: </label>
         <input
           className={styles.inputTicker}
           placeholder="AAPL"
@@ -90,7 +76,7 @@ export default function StockForm() {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          max={endDate || new Date().toISOString().split('T')[0]}
+          max={endDate || ""}
         />
       </div>
 
@@ -101,7 +87,7 @@ export default function StockForm() {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          max={new Date().toISOString().split('T')[0]}
+          max=""
         />
       </div>
 
@@ -119,7 +105,7 @@ export default function StockForm() {
         </div>
       )}
 
-      {stockData.length > 0 && (
+      {!error && stockData.length > 0 && (
         <div className={styles.tableContainer}>
           <table className={styles.table}>
             <thead>
@@ -135,12 +121,12 @@ export default function StockForm() {
             <tbody>
               {stockData.map((stock) => (
                 <tr key={stock._id}>
-                  <td>{new Date(stock.date).toLocaleDateString()}</td>
+                  <td>{String(stock.date)}</td>
                   <td>{stock.open.toFixed(2)}</td>
                   <td>{stock.close.toFixed(2)}</td>
                   <td>{stock.high.toFixed(2)}</td>
                   <td>{stock.low.toFixed(2)}</td>
-                  <td>{stock.volume.toLocaleString()}</td>
+                  <td>{String(stock.volume)}</td>
                 </tr>
               ))}
             </tbody>
@@ -149,4 +135,4 @@ export default function StockForm() {
       )}
     </div>
   );
-} 
+}
