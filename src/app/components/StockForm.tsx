@@ -6,6 +6,7 @@ import { FinanceClient } from "@/api/clients/finance.client";
 import { isSuccessResponse } from "@/types/clientResponse.type";
 import styles from "../../app/page.module.css";
 import { ApiError } from "@/api/config/api-error";
+import { formatDateToString } from "@/utils/date-parser/date-parser.util";
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
@@ -20,9 +21,8 @@ export default function StockForm() {
     setIsClient(true);
 
     // Only set dates on client-side
-    const formatDate = (date: Date) => date.toISOString().split('T')[0];
-    setStartDate(formatDate(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
-    setEndDate(formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000)));
+    setStartDate(formatDateToString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)));
+    setEndDate(formatDateToString(new Date(Date.now() - 24 * 60 * 60 * 1000)));
   }, []);
 
   const handleClick = async () => {
@@ -121,7 +121,7 @@ export default function StockForm() {
             <tbody>
               {stockData.map((stock) => (
                 <tr key={stock._id}>
-                  <td>{String(stock.date)}</td>
+                  <td>{formatDateToString(stock.date)}</td>
                   <td>{stock.open.toFixed(2)}</td>
                   <td>{stock.close.toFixed(2)}</td>
                   <td>{stock.high.toFixed(2)}</td>
