@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const stockPriceSchema = z.object({
+export const stockPriceSchema = z.object({
     _id: z.string(),
     ticker: z.string(),
     date: z.date(),
