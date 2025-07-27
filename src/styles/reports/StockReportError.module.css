@@ -1,0 +1,43 @@
+.errorContainer {
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  color: #991b1b;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.errorTitle {
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.errorMessage {
+  margin: 8px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #7f1d1d;
+}
+
+.errorDetails {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #7f1d1d;
+  font-family: 'Courier New', monospace;
+  background-color: #fecaca;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #f87171;
+}
+
+.errorIcon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  flex-shrink: 0;
+}

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { StockPrice } from '@/api/types/StockPrice';
 import { FinanceClient } from "@/api/clients/finance.client";
 import { isSuccessResponse } from "@/types/clientResponse.type";
-import styles from "../../app/page.module.css";
+import styles from "../../styles/prices/StockForm.module.css";
 import { ApiError } from "@/api/config/api-error";
-import { formatDateToString } from "@/utils/date-parser/date-parser.util";
+import { formatDateToString } from "@/utils/date-parser.util";
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
@@ -14,7 +14,7 @@ export default function StockForm() {
   const [endDate, setEndDate] = useState("");
   const [stockData, setStockData] = useState<StockPrice[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function StockForm() {
 
   const handleClick = async () => {
     if (!ticker || !startDate || !endDate) {
-      setError("Please fill in all fields");
+      setError(new ApiError(400, "Please provide ticker, start date, and end date", "Bad Request"));
       setStockData([]);
       return;
     }
@@ -44,12 +44,13 @@ export default function StockForm() {
         // Remove technical prefix if present
         let msg = response.message || "Failed to fetch stock price";
         msg = msg.replace(/^(\(pythonService\))?\s*Python script error:\s*/i, "");
-        setError(msg);
+        setError(new ApiError(response.statusCode, msg, response.error));
       }
     } catch (error) {
-      console.log(error.name);
-      console.log(error.statusCode);
-      console.log(error.message);
+      console.log("Error fetching stock prices:", error);
+      console.log("Error details:", error);
+      console.log("Error stack trace:", error);
+      setError(new ApiError(500, "An unexpected error occurred", "Internal Server Error"));
     } finally {
       setIsLoading(false);
     }
@@ -98,10 +99,10 @@ export default function StockForm() {
       >
         {isLoading ? 'Loading...' : 'Get Stock Price'}
       </button>
-
+    
       {error && (
         <div className={styles.error}>
-          {error}
+          {error.message}
         </div>
       )}
 

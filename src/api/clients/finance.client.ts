@@ -14,15 +14,13 @@ export class FinanceClient extends BaseClient {
 
     async fetchStockPrices(ticker: string, startDate: string, endDate: string) {
         return await this.get<StockPrice[]>(
-            `fetch-stock-prices/${ticker}`, 
-            { params: { startDate, endDate } }
+            `fetch-stock-prices/${ticker}/${startDate}/${endDate}`, 
         );
     }
 
     async fetchStockReports(ticker: string, reportType: string) {
         return await this.get<StockReport[]>(
-            `fetch-stock-reports/${ticker}`,
-            { params: { reportType } }
+            `fetch-stock-reports/${ticker}/${reportType}`
         );
     }
 }
