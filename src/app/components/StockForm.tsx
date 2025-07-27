@@ -6,7 +6,7 @@ import { FinanceClient } from "@/api/clients/finance.client";
 import { isSuccessResponse } from "@/types/clientResponse.type";
 import styles from "../../app/page.module.css";
 import { ApiError } from "@/api/config/api-error";
-import { formatDateToString } from "@/utils/date-parser/date-parser.util";
+import { formatDateToString } from "@/utils/date-parser.util";
 
 export default function StockForm() {
   const [ticker, setTicker] = useState("");
@@ -98,7 +98,7 @@ export default function StockForm() {
       >
         {isLoading ? 'Loading...' : 'Get Stock Price'}
       </button>
-
+    
       {error && (
         <div className={styles.error}>
           {error}
