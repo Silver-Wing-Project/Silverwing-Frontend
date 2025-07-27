@@ -1,6 +1,6 @@
 import React from "react";
 import { FlattenedReportEntry } from "@/utils/stock-report.utils";
-import styles from "@/styles/reports/StockReportTable.module.css";
+import styles from "@/styles/reports/StockReportTableView.module.css";
 
 interface StockReportTableViewProps {
   reportEntries: FlattenedReportEntry[];
