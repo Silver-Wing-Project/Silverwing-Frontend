@@ -214,3 +214,58 @@ a.secondary {
   font-weight: bold;
   margin-right: 5px;
 }
+
+
+.tableContainer {
+  margin-top: 20px;
+  width: 100%;
+  overflow-x: auto;
+  max-height: 80vh; /* Limit height to prevent infinite scrolling */
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  table-layout: fixed; /* This helps with column width control */
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top; /* Align content to top instead of middle */
+  word-wrap: break-word; /* Break long words */
+}
+
+.table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  position: sticky; /* Keep headers visible when scrolling */
+  top: 0;
+  z-index: 1;
+}
+
+.table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* New CSS for JSON formatting */
+.jsonContent {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  background-color: #f8f9fa;
+  padding: 8px;
+  border-radius: 4px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e9ecef;
+}

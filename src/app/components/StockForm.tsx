@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { StockPrice } from '@/api/types/StockPrice';
 import { FinanceClient } from "@/api/clients/finance.client";
 import { isSuccessResponse } from "@/types/clientResponse.type";
-import styles from "../../app/page.module.css";
+import styles from "../../styles/prices/StockForm.module.css";
 import { ApiError } from "@/api/config/api-error";
 import { formatDateToString } from "@/utils/date-parser.util";
 
