@@ -1,8 +1,9 @@
-// Convert Date objects or ISO strings to 'YYYY-MM-DD' strings
 export const formatDateToString = (date: Date | string): string => {
-  if (typeof date === 'string') {
-    return new Date(date).toISOString().slice(0, 10);
-  }
-  // If it's a Date object, format it
-  return date.toISOString().slice(0, 10);
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  
+  return `${year}/${month}/${day}`;
 };
