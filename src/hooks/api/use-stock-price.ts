@@ -1,36 +1,63 @@
-import { useEffect, useState } from 'react';
-import { BaseClient } from '@/api/base.client';
-import { ClientResponse } from '@/types/clientResponse.type';
-import { StockPrice } from '@/api/types/StockPrice';
+import { useEffect, useMemo, useState } from "react";
+import { StockPrice } from "@/api/types/StockPrice";
+import { ApiError } from "@/api/config/api-error";
+import { StockPriceService } from "@/api/services/StockPriceService";
 
-const client = new BaseClient();
+export const useStockPrice = (ticker: string) => {
+  const [stockPrice, setStockPrice] = useState<StockPrice | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<ApiError | null>(null);
 
-export const useStockPrice = (symbol: string) => {
-    const [stockPrice, setStockPrice] = useState<StockPrice | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+  const stockPriceService = useMemo(() => new StockPriceService(), []);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            setError(null);
+  useEffect(() => {
+    const fetchLatestPrice = async () => {
+      if (!ticker || ticker.trim().length === 0) {
+        setError(new ApiError(400, "Invalid ticker", "Bad Request"));
+        setIsLoading(false);
+        return;
+      }
 
-            try {
-                const response: ClientResponse<StockPrice> = await client.get<StockPrice>(`stock/${symbol}/quote`);
-                if ('data' in response) {
-                    setStockPrice(response.data);
-                } else {
-                    setError('Invalid response format');
-                }
-            } catch (err) {
-                setError('Error fetching stock price');
-            } finally {
-                setLoading(false);
-            }
-        };
+      setIsLoading(true);
+      setError(null);
 
-        fetchData();
-    }, [symbol]);
+      try {
+        const latestPrice =
+          await stockPriceService.getMostRecentClosingPrice(ticker);
 
-    return { stockPrice, loading, error };
+        if (latestPrice) {
+          setStockPrice(latestPrice);
+        } else {
+          setError(
+            new ApiError(
+              404,
+              `No recent stock data found for ${ticker}. Please verify the ticker symbol.`,
+              "Not Found"
+            )
+          );
+        }
+      } catch (err) {
+        console.error(`Failed to fetch stock price for ${ticker}:`, err);
+
+        // Better error messages based on error type
+        if (err instanceof ApiError) {
+          setError(err);
+        } else if (err instanceof Error) {
+          setError(
+            new ApiError(
+              500,
+              `Failed to fetch stock price for ${ticker}: ${err.message}`,
+              "Internal Server Error"
+            )
+          );
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLatestPrice();
+  }, [ticker, stockPriceService]);
+
+  return { stockPrice, isLoading, error };
 };
