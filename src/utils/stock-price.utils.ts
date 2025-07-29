@@ -1,4 +1,5 @@
 import { StockPrice } from "@/api/types/StockPrice";
+import { formatDateToStringDash } from "@/utils/date-parser.utils";
 
 export const sortStockPricesByDate = (
   stockPrices: StockPrice[]
@@ -21,9 +22,11 @@ export const createRecentDateRange = (daysBack: number = 7) => {
   const today = new Date();
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - daysBack);
+  const formattedStartDate = formatDateToStringDash(startDate);
+  const formattedEndDate = formatDateToStringDash(today);
 
   return {
-    startDate: startDate.toISOString().split("T")[0],
-    endDate: today.toISOString().split("T")[0],
+    startDate: formattedStartDate,
+    endDate: formattedEndDate
   };
 };
