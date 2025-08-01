@@ -14,8 +14,6 @@ export class StockPriceService {
   }
 
   async getMostRecentClosingPrice(ticker: string): Promise<StockPrice | null> {
-    if (!ticker) return null;
-
     const { startDate, endDate } = createRecentDateRange(7);
 
     try {
@@ -26,7 +24,12 @@ export class StockPriceService {
       );
 
       if (isSuccessResponse(response) && response.data.length > 0) {
-        return getMostRecentStockPrice(response.data);
+        const stockPrices: StockPrice[] = response.data.map((item) => ({
+          ...item,
+          date: new Date(item.date), // Convert string to Date
+        }));
+
+        return getMostRecentStockPrice(stockPrices);
       }
 
       return null;

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { StockPrice } from "@/api/types/StockPrice";
 import { ApiError } from "@/api/config/api-error";
 import { StockPriceService } from "@/api/services/StockPriceService";
+import { TickerValidator } from "@/utils/ticker-validator";
 
 export const useStockPrice = (ticker: string) => {
   const [stockPrice, setStockPrice] = useState<StockPrice | null>(null);
@@ -12,18 +13,15 @@ export const useStockPrice = (ticker: string) => {
 
   useEffect(() => {
     const fetchLatestPrice = async () => {
-      if (!ticker || ticker.trim().length === 0) {
-        setError(new ApiError(400, "Invalid ticker", "Bad Request"));
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
       try {
+        TickerValidator.validate(ticker);
+        const normalizedTicker = TickerValidator.normalize(ticker);
+
+        setIsLoading(true);
+        setError(null);
+
         const latestPrice =
-          await stockPriceService.getMostRecentClosingPrice(ticker);
+          await stockPriceService.getMostRecentClosingPrice(normalizedTicker);
 
         if (latestPrice) {
           setStockPrice(latestPrice);
@@ -31,7 +29,7 @@ export const useStockPrice = (ticker: string) => {
           setError(
             new ApiError(
               404,
-              `No recent stock data found for ${ticker}. Please verify the ticker symbol.`,
+              `No recent stock data found for ${normalizedTicker}. Please verify the ticker symbol.`,
               "Not Found"
             )
           );
