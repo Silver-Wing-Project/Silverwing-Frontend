@@ -1,5 +1,5 @@
 import { StockReport } from "@/api/types/StockReport";
-import { formatDateToStringSlash } from "@/utils/date-parser.utils";
+import { formatDateForApi } from "@/utils/stock-price.utils";
 
 /**
  * Extracts all available dates from a stock report's content
@@ -12,7 +12,7 @@ export const extractDatesFromReport = (report: StockReport): string[] => {
   return Object.keys(report.content)
     .map((date) => {
       const parsedDate = new Date(date);
-      return formatDateToStringSlash(parsedDate);
+      return formatDateForApi(parsedDate);
     })
     .sort((a, b) => new Date(b).getTime() - new Date(a).getTime()); // Most recent first
 };
@@ -24,7 +24,7 @@ export const getMostRecentReportDate = (report: StockReport): string => {
   const dates = extractDatesFromReport(report);
   return dates.length > 0
     ? dates[0]
-    : formatDateToStringSlash(new Date(report.date));
+    : formatDateForApi(new Date(report.date));
 };
 
 /**
@@ -41,7 +41,7 @@ export const getFinancialDataForDate = (
   // Find the original date key that matches our formatted target date
   const originalDateKey = Object.keys(report.content).find((key) => {
     const parsedDate = new Date(key);
-    const formattedDate = formatDateToStringSlash(parsedDate);
+    const formattedDate = formatDateForApi(parsedDate);
     return formattedDate === targetDate;
   });
 
